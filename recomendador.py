@@ -1,7 +1,6 @@
 import os
 from groq import Groq
 
-# Obtener clave de entorno
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
 
 def obtener_cliente():
@@ -81,3 +80,7 @@ def cambiar_personalidad(nuevo_modo):
         reiniciar_historial()
         return True
     return False
+
+def guardar_recomendaciones():
+    """Función stub para mantener compatibilidad con app_web.py"""
+    return True
