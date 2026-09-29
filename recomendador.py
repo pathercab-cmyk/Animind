@@ -40,7 +40,7 @@ REGLAS DE RESPUESTA:
 3. Estrictamente SIN SPOILERS.
 4. Formato de presentación para cada opción:
    - 🎌 Título (Japonés / Español)
-   - ⏱️️ Duración y Género
+   - ⏱ Duración y Género
    - 💡 Por qué te gustará / Punto fuerte
 """
 
@@ -57,7 +57,7 @@ def obtener_recomendacion(peticion_usuario):
         client = obtener_cliente()
         chat_completion = client.chat.completions.create(
             messages=historial,
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-70b-versatile",
         )
         
         respuesta_texto = chat_completion.choices[0].message.content
