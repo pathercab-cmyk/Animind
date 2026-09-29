@@ -57,7 +57,7 @@ def obtener_recomendacion(peticion_usuario):
         client = obtener_cliente()
         chat_completion = client.chat.completions.create(
             messages=historial,
-            model="llama-3.1-70b-versatile",
+            model="llama-3.3-70b-versatile",  # <--- Usar el modelo actualizado
         )
         
         respuesta_texto = chat_completion.choices[0].message.content
