@@ -1,8 +1,12 @@
 import os
 from groq import Groq
 
+# Obtener clave de entorno
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
-client = Groq(api_key=GROQ_API_KEY)
+
+def obtener_cliente():
+    api_key = os.environ.get("GROQ_API_KEY", GROQ_API_KEY)
+    return Groq(api_key=api_key)
 
 PERSONALIDADES = {
     "entusiasta": """
@@ -51,6 +55,7 @@ def obtener_recomendacion(peticion_usuario):
     historial.append({'role': 'user', 'content': peticion_usuario})
     
     try:
+        client = obtener_cliente()
         chat_completion = client.chat.completions.create(
             messages=historial,
             model="llama-3.2-3b-preview",
