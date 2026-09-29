@@ -1,52 +1,38 @@
 from flask import Flask, render_template, request, jsonify
 from recomendador import (
-    obtener_recomendacion, 
-    reiniciar_historial, 
-    cambiar_personalidad, 
-    guardar_recomendaciones,
-    modo_actual
+    obtener_recomendacion,
+    reiniciar_historial,
+    cambiar_personalidad,
+    guardar_recomendaciones
 )
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route('/')
 def home():
-    """Carga la página principal del chat."""
-    return render_template("index.html", modo=modo_actual)
+    return render_template('index.html')
 
-@app.route("/chat", methods=["POST"])
+@app.route('/api/chat', methods=['POST'])
 def chat():
-    """Procesa los mensajes enviados por el usuario desde la web."""
-    datos = request.get_json()
-    mensaje = datos.get("mensaje", "").strip()
-
+    data = request.json
+    mensaje = data.get('message', '')
     if not mensaje:
-        return jsonify({"respuesta": "Por favor escribe una consulta válida."})
-
-    # Procesar comandos desde la web
-    if mensaje == "/reset":
-        reiniciar_historial()
-        return jsonify({"respuesta": "🧹 Memoria reiniciada. ¡Empieza una nueva consulta!"})
-
-    if mensaje == "/guardar":
-        res = guardar_recomendaciones()
-        return jsonify({"respuesta": res})
-
-    if mensaje.startswith("/modo "):
-        nuevo_modo = mensaje.split(" ")[1].lower()
-        if cambiar_personalidad(nuevo_modo):
-            lemas_respuestas = {
-                "entusiasta": "🎭 Modo ENTUSIASTA activado: ¡Hola! ✨ Soy AniMind, ¡tu IA personal de anime! 🎌",
-                "tsundere": "🎭 Modo TSUNDERE activado: ¡N-no es como si quisiera ser tu IA personal de anime, baka! 😤",
-                "analista": "🎭 Modo ANALISTA activado: Bienvenido. Soy AniMind, tu asistente de IA especializado en animación.",
-                "kohai": "🎭 Modo KOHAI activado: ¡A sus órdenes, Senpai! 🙇‍♂️ AniMind está listo para ayudarte."
-            }
-            return jsonify({"respuesta": lemas_respuestas.get(nuevo_modo, f"🎭 Personalidad cambiada a '{nuevo_modo.upper()}'")})
-        return jsonify({"respuesta": "❌ Modo no válido. Opciones: entusiasta, tsundere, analista, kohai"})
-    # Proceso normal con Ollama
+        return jsonify({'error': 'Mensaje vacío'}), 400
+    
     respuesta = obtener_recomendacion(mensaje)
-    return jsonify({"respuesta": respuesta})
+    return jsonify({'response': respuesta})
 
-if __name__ == "__main__":
-    # Inicia el servidor en http://127.0.0.1:5000/
-    app.run(debug=True, port=5000)
+@app.route('/api/personality', methods=['POST'])
+def set_personality():
+    data = request.json
+    modo = data.get('mode', 'entusiasta')
+    exito = cambiar_personalidad(modo)
+    return jsonify({'success': exito})
+
+@app.route('/api/reset', methods=['POST'])
+def reset_chat():
+    reiniciar_historial()
+    return jsonify({'success': True})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
