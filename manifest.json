@@ -1,0 +1,21 @@
+{
+  "short_name": "AniMind",
+  "name": "AniMind - Tu IA personal de anime",
+  "icons": [
+    {
+      "src": "/static/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b071a",
+  "theme_color": "#8c52ff",
+  "display": "standalone",
+  "orientation": "portrait"
+}
