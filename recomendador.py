@@ -1,10 +1,11 @@
 import os
 from groq import Groq
 
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
-
 def obtener_cliente():
-    api_key = os.environ.get("GROQ_API_KEY", GROQ_API_KEY)
+    # Obtener API Key de las variables de entorno
+    api_key = os.environ.get("GROQ_API_KEY", "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").strip()
+    if not api_key:
+        raise ValueError("No se encontró la variable GROQ_API_KEY en Render")
     return Groq(api_key=api_key)
 
 PERSONALIDADES = {
@@ -57,7 +58,7 @@ def obtener_recomendacion(peticion_usuario):
         client = obtener_cliente()
         chat_completion = client.chat.completions.create(
             messages=historial,
-            model="llama-3.1-8b-instant",  # <--- Cambia el nombre aquí
+            model="llama-3.3-70b-versatile",
         )
         
         respuesta_texto = chat_completion.choices[0].message.content
