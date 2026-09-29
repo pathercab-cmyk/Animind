@@ -12,23 +12,27 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
+# Soportar ambas rutas para evitar errores de frontend
+@app.route('/chat', methods=['POST'])
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    data = request.json
-    mensaje = data.get('message', '')
+    data = request.json or {}
+    mensaje = data.get('message', '') or data.get('mensaje', '')
     if not mensaje:
         return jsonify({'error': 'Mensaje vacío'}), 400
     
     respuesta = obtener_recomendacion(mensaje)
-    return jsonify({'response': respuesta})
+    return jsonify({'response': respuesta, 'respuesta': respuesta})
 
+@app.route('/personality', methods=['POST'])
 @app.route('/api/personality', methods=['POST'])
 def set_personality():
-    data = request.json
+    data = request.json or {}
     modo = data.get('mode', 'entusiasta')
     exito = cambiar_personalidad(modo)
     return jsonify({'success': exito})
 
+@app.route('/reset', methods=['POST'])
 @app.route('/api/reset', methods=['POST'])
 def reset_chat():
     reiniciar_historial()
