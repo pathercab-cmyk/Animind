@@ -1,179 +1,220 @@
-:root {
-    --bg-dark: #0b071a;
-    --card-bg: #150d2a;
-    --purple-main: #8c52ff;
-    --pink-accent: #f06292;
-    --glow-purple: #a855f7;
-    --text-white: #ffffff;
-    --text-muted: #b3a5d0;
-    --bubble-bot: #21153b;
-    --bubble-user: linear-gradient(135deg, #8c52ff, #f06292);
-}
-
+/* ==========================================================================
+   1. CONFIGURACIÓN GENERAL Y VARIABLES
+   ========================================================================== */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: var(--bg-dark);
-    background-image: radial-gradient(circle at top, #281452 0%, #0b071a 70%);
-    color: var(--text-white);
+    background-color: #0d0b18;
+    background-image: radial-gradient(circle at 50% 0%, #1e1b3a 0%, #0d0b18 70%);
+    color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    padding: 20px;
 }
 
-.app-card {
+/* ==========================================================================
+   2. CONTENEDOR PRINCIPAL DEL CHAT
+   ========================================================================== */
+.chat-container {
     width: 100%;
-    max-width: 420px;
+    max-width: 450px;
     height: 90vh;
-    background: var(--card-bg);
-    border-radius: 32px;
-    border: 1px solid rgba(140, 82, 255, 0.25);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(140, 82, 255, 0.15);
+    max-height: 700px;
+    background-color: rgba(22, 19, 43, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.15);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-/* Header */
-.app-header {
-    padding: 20px;
-    background: rgba(21, 13, 42, 0.8);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* ==========================================================================
+   3. CABECERA (LOGO, TÍTULO Y ESTADO)
+   ========================================================================== */
+.chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 16px 20px;
+    background-color: rgba(15, 13, 29, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.logo-container {
+.header-left {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.logo-img {
-    width: 48px;
-    height: 48px;
-    object-fit: cover;
-    border-radius: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 15px rgba(140, 82, 255, 0.4);
-    background-color: var(--card-bg);
+.app-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
-.brand-title {
-    font-size: 1.3rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #ffffff, var(--pink-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.header-title h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
 }
 
-.brand-subtitle {
-    font-size: 0.75rem;
-    color: var(--text-muted);
+.header-title p {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: #a0a0b8;
 }
 
 .status-badge {
-    font-size: 0.7rem;
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
-    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 4px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    font-size: 0.78rem;
+    font-weight: 500;
 }
 
-/* Chat Box */
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #10b981;
+}
+
+/* ==========================================================================
+   4. ÁREA DE MENSAJES DEL CHAT
+   ========================================================================== */
 .chat-box {
     flex: 1;
-    padding: 16px;
+    padding: 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 15px;
+    scroll-behavior: smooth;
 }
 
+/* Personalización del Scrollbar */
+.chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+
+/* Burbujas de Mensaje General */
 .message {
-    max-width: 88%;
+    max-width: 85%;
     padding: 12px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    border-radius: 16px;
+    font-size: 0.92rem;
     line-height: 1.5;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-.message-sender {
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    opacity: 0.8;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.bot-message {
-    background-color: var(--bubble-bot);
-    border: 1px solid rgba(168, 85, 247, 0.2);
+/* Mensaje de AniMind (IA) */
+.message.bot {
     align-self: flex-start;
-    border-top-left-radius: 4px;
-    color: #e2d9f3;
+    background-color: rgba(35, 31, 64, 0.9);
+    color: #e2e2fe;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom-left-radius: 4px;
 }
 
-.user-message {
-    background: var(--bubble-user);
-    color: white;
+/* Mensaje del Usuario */
+.message.user {
     align-self: flex-end;
-    border-top-right-radius: 4px;
-    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    background: linear-gradient(135deg, #a855f7, #ec4899);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
 }
 
-.thinking {
-    opacity: 0.75;
+/* Nombre sobre el mensaje */
+.sender-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #b3b3d1;
+    margin-bottom: 4px;
+    display: block;
 }
 
-/* Input Area */
-.chat-input-area {
-    padding: 16px;
-    background: rgba(11, 7, 26, 0.9);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+/* ==========================================================================
+   5. ÁREA DE ENTRADA Y BOTÓN
+   ========================================================================== */
+.chat-input-container {
+    padding: 16px 20px;
+    background-color: rgba(15, 13, 29, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
-input[type="text"] {
+.chat-input-container input {
     flex: 1;
-    padding: 14px 18px;
-    border-radius: 20px;
-    border: 1px solid rgba(140, 82, 255, 0.3);
-    background: #1a1233;
-    color: white;
-    font-size: 0.85rem;
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    color: #ffffff;
+    font-size: 0.9rem;
     outline: none;
-    transition: all 0.3s;
+    transition: all 0.2s ease;
 }
 
-input[type="text"]:focus {
-    border-color: var(--pink-accent);
-    box-shadow: 0 0 12px rgba(240, 98, 146, 0.3);
+.chat-input-container input::placeholder {
+    color: #7a7a95;
 }
 
-button {
-    padding: 14px 20px;
-    border-radius: 20px;
+.chat-input-container input:focus {
+    border-color: #a855f7;
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+.chat-input-container button {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border: none;
-    background: linear-gradient(135deg, var(--purple-main), var(--pink-accent));
-    color: white;
-    font-weight: 700;
-    font-size: 0.85rem;
+    border-radius: 25px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(240, 98, 146, 0.5);
+.chat-input-container button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+}
+
+.chat-input-container button:active {
+    transform: translateY(0);
 }
