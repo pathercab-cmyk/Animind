@@ -3,6 +3,7 @@ from groq import Groq
 
 # Modelos oficiales de chat activos en Groq Cloud
 MODELOS_DISPONIBLES = [
+    "openai/gpt-oss-120b",
     "llama-3.3-70b-versatile",
     "llama-3.1-8b-instant"
 ]
