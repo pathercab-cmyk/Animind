@@ -1,14 +1,12 @@
 import os
 from groq import Groq
 
-# Modelos respaldados en orden de prioridad
 MODELOS_DISPONIBLES = [
     "llama-3.3-70b-versatile",
     "llama-3.1-8b-instant"
 ]
 
 def obtener_recomendacion(mensaje_usuario, personalidad="otaku"):
-    # Selección de la personalidad del bot
     if personalidad == "critico":
         estilo_personalidad = "Eres AniMind, un crítico de anime analítico, exigente y reflexivo. Valoras la narrativa, la animación y el desarrollo de personajes de forma técnica pero accesible."
     elif personalidad == "sensei":
@@ -36,14 +34,13 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
 ---
 """
 
-    # Obtención de la clave API desde las variables de entorno de Render
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        return "Error: No se ha encontrado la variable GROQ_API_KEY en el servidor."
+        return "Error: No se ha encontrado la variable GROQ_API_KEY en las variables de entorno de Render."
 
     client = Groq(api_key=api_key)
 
-    # Intento de conexión probando los modelos disponibles
+    ultimo_error = ""
     for modelo in MODELOS_DISPONIBLES:
         try:
             completion = client.chat.completions.create(
@@ -56,7 +53,8 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
                 max_tokens=1024
             )
             return completion.choices[0].message.content
-        except Exception:
+        except Exception as e:
+            ultimo_error = str(e)
             continue
 
-    return "Lo siento, no se pudo conectar con el servicio de recomendaciones en este momento."
+    return f"Error al conectar con Groq: {ultimo_error}"
