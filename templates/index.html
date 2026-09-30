@@ -17,9 +17,23 @@
 <body>
     <div class="app-card">
         <!-- Header AniMind -->
-       <header class="chat-header">
-    <h1>AniMind</h1>
-    <p>Tu IA personal de anime</p>
+      <header class="chat-header">
+    <div class="header-left">
+        <!-- Si usas un enlace externo directo (Recomendado para evitar fallos de carpeta): -->
+        <img src="https://i.postimg.cc/mD3V9fJq/logo.png" alt="AniMind Logo" class="app-logo">
+        
+        <!-- O si lograste subirlo a static/logo.png, usa esta línea: -->
+        <!-- <img src="{{ url_for('static', filename='logo.png') }}" alt="AniMind Logo" class="app-logo"> -->
+
+        <div class="header-title">
+            <h1>AniMind</h1>
+            <p>Tu IA personal de anime</p>
+        </div>
+    </div>
+    
+    <div class="status-badge">
+        <span class="status-dot"></span> En línea
+    </div>
 </header>
         <!-- Chat / Contenido -->
         <div id="chat-box" class="chat-box">
