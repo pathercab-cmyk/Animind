@@ -12,55 +12,87 @@
         <!-- Cabecera -->
         <header class="chat-header">
             <div class="header-left">
-                <!-- Puedes desmarcar la siguiente línea si subes la imagen a static/logo.png -->
-                <!-- <img src="{{ url_for('static', filename='logo.png') }}" alt="AniMind Logo" class="app-logo"> -->
-                
                 <div class="header-title">
                     <h1>AniMind</h1>
                     <p>Tu IA personal de anime</p>
                 </div>
             </div>
             
-            <div class="status-badge">
-                <span class="status-dot"></span> En línea
+            <div class="header-actions">
+                <!-- Selector de Personalidad -->
+                <select id="personality-select" class="personality-dropdown" title="Cambiar personalidad">
+                    <option value="otaku">🌸 Entusiasta (Otaku)</option>
+                    <option value="critico">🎭 Crítico Analítico</option>
+                    <option value="sensei">📜 Maestro Sensei</option>
+                </select>
+
+                <!-- Botón Exportar Chat -->
+                <button id="export-btn" class="icon-btn" title="Exportar conversación">📥</button>
+
+                <!-- Botón Reiniciar Chat -->
+                <button id="reset-btn" class="icon-btn" title="Reiniciar chat">🔄</button>
             </div>
         </header>
 
-        <!-- Área de Chat / Mensajes -->
+        <!-- Área de Mensajes -->
         <div class="chat-box" id="chat-box">
             <div class="message bot">
                 <span class="sender-name">AniMind</span>
-                ¡Hola! 🌸 Cuéntame qué te apetece ver hoy o selecciona tus géneros preferidos. Te recomendaré el anime perfecto para ti.
+                <div class="message-content">¡Hola! 🌸 Cuéntame qué te apetece ver hoy o selecciona tus géneros preferidos. Te recomendaré el anime perfecto para ti.</div>
             </div>
         </div>
 
-        <!-- Barra de Entrada de Texto -->
+        <!-- Sugerencias Rápidas -->
+        <div class="quick-suggestions">
+            <button onclick="enviarSugerencia('Recomiéndame un anime de acción corto')">🔥 Acción</button>
+            <button onclick="enviarSugerencia('Recomiéndame una película anime emocionante')">🎬 Película</button>
+            <button onclick="enviarSugerencia('Dame una joya oculta de comedia')">💎 Comedia</button>
+        </div>
+
+        <!-- Formulario de Entrada -->
         <form class="chat-input-container" id="chat-form">
-            <input type="text" id="user-input" placeholder="Escribe lo que te apetece... (Ej. 'algo con mucha acción')" required autocomplete="off">
-            <button type="submit">Enviar</button>
+            <input type="text" id="user-input" placeholder="Escribe lo que te apetece..." required autocomplete="off">
+            <button type="submit" id="send-btn">Enviar</button>
         </form>
     </div>
 
-  <script>
+    <script>
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
         const chatBox = document.getElementById('chat-box');
+        const sendBtn = document.getElementById('send-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const personalitySelect = document.getElementById('personality-select');
 
+        let historialConversacion = [];
+
+        // Función para enviar sugerencias rápidas
+        function enviarSugerencia(texto) {
+            userInput.value = texto;
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+
+        // Envío de mensaje
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Mensaje del usuario
+            // Bloquear botón para evitar spam
+            sendBtn.disabled = true;
+
+            // Añadir mensaje usuario
             const userDiv = document.createElement('div');
             userDiv.className = 'message user';
             userDiv.innerText = message;
             chatBox.appendChild(userDiv);
+            historialConversacion.push(`Usuario: ${message}`);
 
             userInput.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Mensaje del bot (Cargando)
+            // Mensaje bot cargando
             const botDiv = document.createElement('div');
             botDiv.className = 'message bot';
             botDiv.innerHTML = '<span class="sender-name">AniMind</span><div class="message-content">Pensando... 🌸</div>';
@@ -71,21 +103,51 @@
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ 
+                        message: message,
+                        personality: personalitySelect.value 
+                    })
                 });
                 const data = await response.json();
-                
-                // Limpiar asteriscos y almohadillas por si la IA los genera
-                let textLimpio = data.response
-                    .replace(/[*#]/g, '')
-                    .replace(/\n/g, '<br>');
 
-                const contentDiv = botDiv.querySelector('.message-content');
-                contentDiv.innerHTML = textLimpio;
+                // Limpieza de símbolos y sangría limpia
+                let textLimpio = data.response.replace(/[*#]/g, '');
+                botDiv.querySelector('.message-content').innerText = textLimpio;
+                historialConversacion.push(`AniMind: ${textLimpio}`);
+
             } catch (error) {
-                botDiv.querySelector('.message-content').innerHTML = '❌ Error de conexión al servidor.';
+                botDiv.querySelector('.message-content').innerText = '❌ Error de conexión al servidor.';
+            } finally {
+                sendBtn.disabled = false;
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
-            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Botón Reiniciar
+        resetBtn.addEventListener('click', () => {
+            chatBox.innerHTML = `
+                <div class="message bot">
+                    <span class="sender-name">AniMind</span>
+                    <div class="message-content">¡Chat reiniciado! 🌸 ¿Qué anime buscamos ahora?</div>
+                </div>
+            `;
+            historialConversacion = [];
+        });
+
+        // Botón Exportar a Archivo .txt
+        exportBtn.addEventListener('click', () => {
+            if (historialConversacion.length === 0) {
+                alert("No hay mensajes en la conversación para exportar.");
+                return;
+            }
+
+            const contenido = "--- RECOMENDACIONES DE ANIMIND ---\n\n" + historialConversacion.join("\n\n-----------------------------------\n\n");
+            const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+            const enlace = document.createElement('a');
+            enlace.href = URL.createObjectURL(blob);
+            enlace.download = 'Recomendaciones_AniMind.txt';
+            enlace.click();
+            URL.revokeObjectURL(enlace.href);
         });
     </script>
 </body>
