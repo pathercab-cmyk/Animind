@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. CONFIGURACIÓN GENERAL Y RESET
+   1. CONFIGURACIÓN GENERAL
    ========================================================================== */
 * {
     box-sizing: border-box;
@@ -16,7 +16,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    padding: 15px;
 }
 
 /* ==========================================================================
@@ -24,10 +24,10 @@ body {
    ========================================================================== */
 .chat-container {
     width: 100%;
-    max-width: 480px;
-    height: 88vh;
-    max-height: 720px;
-    background-color: rgba(22, 19, 43, 0.85);
+    max-width: 500px;
+    height: 90vh;
+    max-height: 750px;
+    background-color: rgba(22, 19, 43, 0.88);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -38,80 +38,86 @@ body {
 }
 
 /* ==========================================================================
-   3. CABECERA (LOGO, TÍTULO Y ESTADO EN LÍNEA)
+   3. CABECERA Y ACCIONES
    ========================================================================== */
 .chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    background-color: rgba(15, 13, 29, 0.8);
+    padding: 14px 18px;
+    background-color: rgba(15, 13, 29, 0.85);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.app-logo {
-    width: 38px;
-    height: 38px;
-    object-fit: contain;
-    border-radius: 8px;
 }
 
 .header-title h1 {
     margin: 0;
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.1;
-    letter-spacing: 0.5px;
 }
 
 .header-title p {
     margin: 2px 0 0 0;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #a0a0b8;
 }
 
-.status-badge {
+.header-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
-    background-color: rgba(16, 185, 129, 0.12);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 500;
+    gap: 8px;
 }
 
-.status-dot {
-    width: 7px;
-    height: 7px;
-    background-color: #10b981;
+.personality-dropdown {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #e2e2fe;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.personality-dropdown option {
+    background-color: #16132b;
+    color: #ffffff;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    box-shadow: 0 0 6px #10b981;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    background-color: rgba(168, 85, 247, 0.25);
+    transform: scale(1.05);
 }
 
 /* ==========================================================================
-   4. ÁREA DE CHAT Y MENSAJES
+   4. ÁREA DE MENSAJES Y SANGRÍA / JUSTIFICADO
    ========================================================================== */
 .chat-box {
     flex: 1;
-    padding: 20px;
+    padding: 18px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 15px;
     scroll-behavior: smooth;
 }
 
-/* Scrollbar personalizado */
 .chat-box::-webkit-scrollbar {
     width: 6px;
 }
@@ -121,23 +127,15 @@ body {
     border-radius: 10px;
 }
 
-/* Burbujas de Mensaje */
 .message {
     max-width: 88%;
-    padding: 14px 18px;
+    padding: 12px 16px;
     border-radius: 16px;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     line-height: 1.6;
     word-wrap: break-word;
-    animation: fadeIn 0.3s ease-in-out;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mensaje de la IA (AniMind) */
 .message.bot {
     align-self: flex-start;
     background-color: rgba(35, 31, 64, 0.9);
@@ -146,94 +144,101 @@ body {
     border-bottom-left-radius: 4px;
 }
 
-/* Mensaje del Usuario */
 .message.user {
     align-self: flex-end;
     background: linear-gradient(135deg, #a855f7, #ec4899);
     color: #ffffff;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
 }
 
 .sender-name {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #c084fc;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: block;
 }
 
-/* ==========================================================================
-   5. SANGRÍA Y FORMATO DE TEXTO (RESPUESTAS LIMPIAS)
-   ========================================================================== */
 .message-content {
-    white-space: pre-wrap; /* Mantiene saltos de línea y espacios de sangría */
-    font-size: 0.91rem;
-    color: #e2e2fe;
-    line-height: 1.65;
-    padding-left: 4px;
-    text-align: justify;   /* <-- Alinea el texto de forma justificada */
-    hyphens: auto;         /* Separa palabras correctamente al final de línea */
-}
-
-/* Formato visual para las separaciones entre recomendaciones */
-.message-content hr {
-    border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 12px 0;
+    white-space: pre-wrap;
+    text-align: justify;
+    hyphens: auto;
+    padding-left: 2px;
 }
 
 /* ==========================================================================
-   6. BARRA DE ENTRADA Y BOTÓN ENVIAR
+   5. SUGERENCIAS RÁPIDAS
+   ========================================================================== */
+.quick-suggestions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 18px;
+    overflow-x: auto;
+    background-color: rgba(15, 13, 29, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quick-suggestions::-webkit-scrollbar {
+    display: none;
+}
+
+.quick-suggestions button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #a0a0b8;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-suggestions button:hover {
+    background-color: rgba(168, 85, 247, 0.2);
+    color: #ffffff;
+    border-color: #a855f7;
+}
+
+/* ==========================================================================
+   6. ENTRADA DE TEXTO
    ========================================================================== */
 .chat-input-container {
-    padding: 16px 20px;
+    padding: 14px 18px;
     background-color: rgba(15, 13, 29, 0.9);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     gap: 10px;
-    align-items: center;
 }
 
 .chat-input-container input {
     flex: 1;
-    padding: 12px 18px;
+    padding: 10px 16px;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 25px;
     color: #ffffff;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     outline: none;
-    transition: all 0.2s ease;
-}
-
-.chat-input-container input::placeholder {
-    color: #7a7a95;
 }
 
 .chat-input-container input:focus {
     border-color: #a855f7;
-    background-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
 }
 
 .chat-input-container button {
-    padding: 12px 22px;
+    padding: 10px 20px;
     background: linear-gradient(135deg, #a855f7, #ec4899);
     border: none;
     border-radius: 25px;
     color: #ffffff;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.chat-input-container button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
-}
-
-.chat-input-container button:active {
-    transform: translateY(0);
+.chat-input-container button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
