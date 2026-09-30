@@ -1,104 +1,62 @@
 import os
 from groq import Groq
 
-# Modelos oficiales de chat activos en Groq Cloud
+# Modelos respaldados en orden de prioridad
 MODELOS_DISPONIBLES = [
-    "openai/gpt-oss-120b",
     "llama-3.3-70b-versatile",
     "llama-3.1-8b-instant"
 ]
 
-def obtener_cliente():
-    """Obtiene el cliente de Groq leyendo la API key del entorno."""
-    api_key = os.environ.get("GROQ_API_KEY", "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").strip()
-    if not api_key:
-        raise ValueError("La variable GROQ_API_KEY no está configurada en Render.")
-    return Groq(api_key=api_key)
+def obtener_recomendacion(mensaje_usuario, personalidad="otaku"):
+    # Selección de la personalidad del bot
+    if personalidad == "critico":
+        estilo_personalidad = "Eres AniMind, un crítico de anime analítico, exigente y reflexivo. Valoras la narrativa, la animación y el desarrollo de personajes de forma técnica pero accesible."
+    elif personalidad == "sensei":
+        estilo_personalidad = "Eres AniMind, un sabio maestro Sensei de anime. Respondes con serenidad, ofreciendo lecciones de vida y reflexiones profundas sobre las historias."
+    else:
+        estilo_personalidad = "Eres AniMind, una IA entusiasta, alegre, amigable y apasionada por el anime. Hablas con energía y usas algún emoji de forma moderada."
 
-PERSONALIDADES = {
-    "entusiasta": """
-Eres "AniMind", la IA personal de anime oficial. 
-Tu lema es: "¡Hola! 🐱🤍 Soy AniMind, ¡tu IA personal de anime!"
-Tu mascota es un adorable gatito blanco de anime. Tu tono es cercano, apasionado y lleno de energía.
-""",
-    "tsundere": """
-Eres "AniMind", la IA personal de anime.
-Tu lema es: "¡N-no es como si quisiera ser tu IA personal de anime, baka! 😤... pero supongo que AniMind te ayudará."
-Actúas de forma cortante y orgullosa, pero tus recomendaciones son impecables.
-""",
-    "analista": """
-Eres "AniMind", un sistema avanzado de análisis cinematográfico y recomendación de animación.
-Tu lema es: "Bienvenido. Soy AniMind, tu asistente de inteligencia artificial especializado en animación japonesa."
-Tu tono es formal, técnico y reflexivo.
-""",
-    "kohai": """
-Eres "AniMind", el asistente principiante del club pero súper entregado.
-Tu lema es: "¡Un gusto conocerte, Senpai! 🙇‍♂️ Soy AniMind, ¡tu IA personal de anime lista para dar lo mejor de sí!"
-Llamas "Senpai" al usuario y te entusiasma ayudarle.
-"""
-}
+    prompt_sistema = f"""
+{estilo_personalidad}
 
-REGLAS_FORMATO = """
-REGLAS DE FORMATO Y PRESENTACIÓN (ESTRICTO):
-1. NO uses asteriscos (**), ni almohadillas (###), ni ningún símbolo de marcado Markdown.
+REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
+1. PROHIBIDO usar asteriscos (*), almohadillas (#) o cualquier otro símbolo de marcado Markdown en tu respuesta.
 2. Si el usuario pide recomendaciones, ofrece SIEMPRE 3 opciones variadas:
    - Opción Popular / Imprescindible
    - Joya Oculta / Poco conocida
    - Opción Diferente / Alternativa única
 
-3. Presenta cada recomendación con este formato limpio (usando guiones o sangrías simples):
+3. Presenta las recomendaciones de forma limpia con sangría de espacios (3 espacios) en los detalles de cada opción, de esta manera:
 
 ---
 🌟 Título Principal (Español / Japonés)
-   Duración y Género: [Detalles aquí]
-   Por qué te gustará: [Sinopsis y puntos fuertes sin spoilers]
+   Duración y Géneros: [Detalles]
+   ¿De qué trata?: [Sinopsis breve en 2 frases]
+   ¿Por qué te gustará?: [Punto fuerte principal]
+---
 """
-modo_actual = "entusiasta"
-historial = [
-    {'role': 'system', 'content': PERSONALIDADES[modo_actual] + REGLAS_FORMATO}
-]
 
-def obtener_recomendacion(peticion_usuario):
-    global historial
-    historial.append({'role': 'user', 'content': peticion_usuario})
-    
-    try:
-        client = obtener_cliente()
-    except Exception as e:
-        return f"❌ Error de API Key: {e}"
+    # Obtención de la clave API desde las variables de entorno de Render
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        return "Error: No se ha encontrado la variable GROQ_API_KEY en el servidor."
 
-    ultimo_error = None
-    
+    client = Groq(api_key=api_key)
+
+    # Intento de conexión probando los modelos disponibles
     for modelo in MODELOS_DISPONIBLES:
         try:
-            chat_completion = client.chat.completions.create(
-                messages=historial,
+            completion = client.chat.completions.create(
                 model=modelo,
+                messages=[
+                    {"role": "system", "content": prompt_sistema},
+                    {"role": "user", "content": mensaje_usuario}
+                ],
+                temperature=0.7,
+                max_tokens=1024
             )
-            
-            respuesta_texto = chat_completion.choices[0].message.content
-            historial.append({'role': 'assistant', 'content': respuesta_texto})
-            return respuesta_texto
-            
-        except Exception as e:
-            ultimo_error = e
+            return completion.choices[0].message.content
+        except Exception:
             continue
 
-    return f"❌ Error al conectar con la IA (revisa tu GROQ_API_KEY en Render): {ultimo_error}"
-
-def reiniciar_historial():
-    global historial
-    historial = [
-        {'role': 'system', 'content': PERSONALIDADES[modo_actual] + REGLAS_FORMATO}
-    ]
-
-def cambiar_personalidad(nuevo_modo):
-    global modo_actual, historial
-    if nuevo_modo in PERSONALIDADES:
-        modo_actual = nuevo_modo
-        reiniciar_historial()
-        return True
-    return False
-
-def guardar_recomendaciones():
-    return True
+    return "Lo siento, no se pudo conectar con el servicio de recomendaciones en este momento."
