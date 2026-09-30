@@ -1,10 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from recomendador import (
-    obtener_recomendacion,
-    reiniciar_historial,
-    cambiar_personalidad,
-    guardar_recomendaciones
-)
+from recomendador import obtener_recomendacion
 
 app = Flask(__name__)
 
@@ -12,31 +7,26 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-# Soportar ambas rutas para evitar errores de frontend
-@app.route('/chat', methods=['POST'])
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    data = request.json or {}
-    mensaje = data.get('message', '') or data.get('mensaje', '')
-    if not mensaje:
-        return jsonify({'error': 'Mensaje vacío'}), 400
-    
-    respuesta = obtener_recomendacion(mensaje)
-    return jsonify({'response': respuesta, 'respuesta': respuesta})
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'response': 'Petición no válida.'}), 400
 
-@app.route('/personality', methods=['POST'])
-@app.route('/api/personality', methods=['POST'])
-def set_personality():
-    data = request.json or {}
-    modo = data.get('mode', 'entusiasta')
-    exito = cambiar_personalidad(modo)
-    return jsonify({'success': exito})
+        user_message = data.get('message', '').strip()
+        personality = data.get('personality', 'otaku')
 
-@app.route('/reset', methods=['POST'])
-@app.route('/api/reset', methods=['POST'])
-def reset_chat():
-    reiniciar_historial()
-    return jsonify({'success': True})
+        if not user_message:
+            return jsonify({'response': 'Por favor, escribe un mensaje.'}), 400
+
+        # Llamada al recomendador pasando el mensaje y la personalidad
+        respuesta = obtener_recomendacion(user_message, personalidad=personality)
+        
+        return jsonify({'response': respuesta})
+
+    except Exception as e:
+        return jsonify({'response': f'Error interno del servidor: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)rt=5000)
