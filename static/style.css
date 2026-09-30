@@ -172,6 +172,8 @@ body {
     color: #e2e2fe;
     line-height: 1.65;
     padding-left: 4px;
+    text-align: justify;   /* <-- Alinea el texto de forma justificada */
+    hyphens: auto;         /* Separa palabras correctamente al final de línea */
 }
 
 /* Formato visual para las separaciones entre recomendaciones */
