@@ -1,11 +1,6 @@
 import os
 from groq import Groq
 
-MODELOS_DISPONIBLES = [
-    "llama-3.3-70b-versatile",
-    "llama-3.1-8b-instant"
-]
-
 def obtener_recomendacion(mensaje_usuario, personalidad="otaku"):
     if personalidad == "critico":
         estilo_personalidad = "Eres AniMind, un crítico de anime analítico, exigente y reflexivo. Valoras la narrativa, la animación y el desarrollo de personajes de forma técnica pero accesible."
@@ -40,8 +35,19 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
 
     client = Groq(api_key=api_key)
 
+    try:
+        # Obtenemos los modelos activos directamente desde la API de Groq
+        modelos_api = [m.id for m in client.models.list().data if "llama" in m.id or "mixtral" in m.id]
+        
+        # Si no filtró ninguno por nombre, tomamos todos los disponibles
+        if not modelos_api:
+            modelos_api = [m.id for m in client.models.list().data]
+
+    except Exception as e:
+        return f"Error al consultar la lista de modelos en la API de Groq: {str(e)}"
+
     ultimo_error = ""
-    for modelo in MODELOS_DISPONIBLES:
+    for modelo in modelos_api:
         try:
             completion = client.chat.completions.create(
                 model=modelo,
@@ -57,4 +63,4 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
             ultimo_error = str(e)
             continue
 
-    return f"Error al conectar con Groq: {ultimo_error}"
+    return f"Error al generar respuesta con los modelos disponibles: {ultimo_error}"
