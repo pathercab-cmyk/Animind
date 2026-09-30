@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AniMind - Recomendador de Anime con IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card-custom { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        .btn-mic { width: 80px; height: 80px; border-radius: 50%; font-size: 1.8rem; transition: all 0.3s; }
+        .listening { animation: pulse 1.5s infinite; background-color: #ef4444 !important; border-color: #f87171 !important; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        .badge-stream { background-color: #3b82f6; margin-right: 5px; }
+    </style>
+</head>
+<body class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">✨ AniMind</h1>
+        <p class="text-secondary">Tu asistente de recomendación de anime por voz y disponibilidad en streaming</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center mb-4">
+            <button id="micBtn" class="btn btn-primary btn-mic mb-3">🎙️</button>
+            <p id="statusText" class="text-muted">Pulsa el micrófono y pide lo que te apetezca ver...</p>
+            <div id="transcription" class="fst-italic text-info min-vh-50"></div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div id="resultCard" class="card card-custom p-4 d-none">
+                <h2 id="animeTitle" class="text-warning fw-bold mb-3"></h2>
+                <p id="animeSinopsis" class="lead"></p>
+                
+                <hr class="border-secondary">
+                
+                <h5 class="text-info">💡 ¿Por qué te gustará?</h5>
+                <p id="animeRazon"></p>
+
+                <hr class="border-secondary">
+
+                <h5 class="text-info mb-3">📺 Dónde ver, Audios y Subtítulos</h5>
+                <div id="platformsContainer" class="d-flex flex-column gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const micBtn = document.getElementById('micBtn');
+        const statusText = document.getElementById('statusText');
+        const transcription = document.getElementById('transcription');
+        const resultCard = document.getElementById('resultCard');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            statusText.innerText = "Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.";
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'es-ES';
+            recognition.continuous = false;
+
+            micBtn.addEventListener('click', () => {
+                recognition.start();
+                micBtn.classList.add('listening');
+                statusText.innerText = "Escuchando... Di algo como: 'Quiero un anime tipo comedia romántica con magia'";
+            });
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                transcription.innerText = `"${text}"`;
+                micBtn.classList.remove('listening');
+                statusText.innerText = "Buscando la recomendación ideal...";
+                consultarAniMind(text);
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove('listening');
+                statusText.innerText = "Error al escuchar. Inténtalo de nuevo.";
+            };
+        }
+
+        async function consultarAniMind(mensajeVoz) {
+            try {
+                const res = await fetch('/animind/recomendar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensaje_voz: mensajeVoz })
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    statusText.innerText = "Error: " + data.error;
+                    return;
+                }
+
+                document.getElementById('animeTitle').innerText = data.titulo;
+                document.getElementById('animeSinopsis').innerText = data.sinopsis_corta;
+                document.getElementById('animeRazon').innerText = data.razon_recomendacion;
+
+                const container = document.getElementById('platformsContainer');
+                container.innerHTML = '';
+
+                data.plataformas.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'p-3 bg-dark rounded border border-secondary';
+                    div.innerHTML = `
+                        <strong class="text-primary fs-5">${p.nombre}</strong>
+                        <div class="mt-2">
+                            <span class="badge badge-stream">🎙️ Audios: ${p.audios.join(', ')}</span>
+                            <span class="badge bg-secondary">💬 Subs: ${p.subtitulos.join(', ')}</span>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                resultCard.classList.remove('d-none');
+                statusText.innerText = "¡Recomendación lista!";
+
+            } catch (err) {
+                statusText.innerText = "Error de conexión con AniMind.";
+            }
+        }
+    </script>
+</body>
+</html>
