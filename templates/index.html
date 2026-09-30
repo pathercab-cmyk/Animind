@@ -3,120 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AniMind - Tu IA personal de anime</title>
+    <title>AniMind - Tu IA Personal de Anime</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#8c52ff">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#8c52ff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
 </head>
 <body>
-    <div class="app-card">
-        <!-- Header AniMind -->
-      <header class="chat-header">
-    <div class="header-left">
-        <!-- Si usas un enlace externo directo (Recomendado para evitar fallos de carpeta): -->
-        <img src="https://i.postimg.cc/mD3V9fJq/logo.png" alt="AniMind Logo" class="app-logo">
-        
-        <!-- O si lograste subirlo a static/logo.png, usa esta línea: -->
-        <!-- <img src="{{ url_for('static', filename='logo.png') }}" alt="AniMind Logo" class="app-logo"> -->
 
-        <div class="header-title">
-            <h1>AniMind</h1>
-            <p>Tu IA personal de anime</p>
-        </div>
-    </div>
-    
-    <div class="status-badge">
-        <span class="status-dot"></span> En línea
-    </div>
-</header>
-        <!-- Chat / Contenido -->
-        <div id="chat-box" class="chat-box">
-            <div class="message bot-message">
-                <div class="message-sender">AniMind</div>
-                <div class="message-text">
-                    ¡Hola! 🌸 Cuéntame qué te apetece ver hoy o selecciona tus géneros preferidos. Te recomendaré el anime perfecto para ti.
+    <div class="chat-container">
+        <!-- Cabecera -->
+        <header class="chat-header">
+            <div class="header-left">
+                <!-- Puedes desmarcar la siguiente línea si subes la imagen a static/logo.png -->
+                <!-- <img src="{{ url_for('static', filename='logo.png') }}" alt="AniMind Logo" class="app-logo"> -->
+                
+                <div class="header-title">
+                    <h1>AniMind</h1>
+                    <p>Tu IA personal de anime</p>
                 </div>
+            </div>
+            
+            <div class="status-badge">
+                <span class="status-dot"></span> En línea
+            </div>
+        </header>
+
+        <!-- Área de Chat / Mensajes -->
+        <div class="chat-box" id="chat-box">
+            <div class="message bot">
+                <span class="sender-name">AniMind</span>
+                ¡Hola! 🌸 Cuéntame qué te apetece ver hoy o selecciona tus géneros preferidos. Te recomendaré el anime perfecto para ti.
             </div>
         </div>
 
-        <!-- Bar de entrada inferior -->
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Escribe lo que te apetece... (Ej. 'algo con magia y romance')" onkeydown="checkEnter(event)">
-            <button onclick="enviarMensaje()">
-                <span>Enviar</span>
-            </button>
-        </div>
+        <!-- Barra de Entrada de Texto -->
+        <form class="chat-input-container" id="chat-form">
+            <input type="text" id="user-input" placeholder="Escribe lo que te apetece... (Ej. 'algo con mucha acción')" required autocomplete="off">
+            <button type="submit">Enviar</button>
+        </form>
     </div>
 
     <script>
-        async function enviarMensaje() {
-            const input = document.getElementById("user-input");
-            const chatBox = document.getElementById("chat-box");
-            const texto = input.value.trim();
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
 
-            if (!texto) return;
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
 
-            // Mensaje usuario
-            chatBox.innerHTML += `
-                <div class="message user-message">
-                    <div class="message-sender">Tú</div>
-                    <div class="message-text">${texto}</div>
-                </div>`;
-            input.value = "";
+            // Añadir mensaje del usuario al chat
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.innerText = message;
+            chatBox.appendChild(userDiv);
+
+            userInput.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Indicador "pensando"
-            const tempBotMsg = document.createElement("div");
-            tempBotMsg.className = "message bot-message thinking";
-            tempBotMsg.innerHTML = `<div class="message-sender">AniMind</div><div class="message-text">Buscando las mejores opciones para ti... 🪄</div>`;
-            chatBox.appendChild(tempBotMsg);
+            // Añadir mensaje provisional de carga
+            const botDiv = document.createElement('div');
+            botDiv.className = 'message bot';
+            botDiv.innerHTML = '<span class="sender-name">AniMind</span>Pensando... 🌸';
+            chatBox.appendChild(botDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const response = await fetch("/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ mensaje: texto })
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
                 });
-
                 const data = await response.json();
-                chatBox.removeChild(tempBotMsg);
-
-                const respuestaFormateada = data.respuesta.replace(/\n/g, "<br>");
-                chatBox.innerHTML += `
-                    <div class="message bot-message">
-                        <div class="message-sender">AniMind</div>
-                        <div class="message-text">${respuestaFormateada}</div>
-                    </div>`;
+                botDiv.innerHTML = '<span class="sender-name">AniMind</span>' + data.response;
             } catch (error) {
-                chatBox.removeChild(tempBotMsg);
-                chatBox.innerHTML += `
-                    <div class="message bot-message error">
-                        <div class="message-text">❌ Error de conexión con el servidor.</div>
-                    </div>`;
+                botDiv.innerHTML = '<span class="sender-name">AniMind</span>❌ Error de conexión al servidor.';
             }
-
             chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function checkEnter(event) {
-            if (event.key === "Enter") enviarMensaje();
-        }
-    </script>
-    <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
-                .then(reg => console.log('Service Worker registrado con éxito', reg))
-                .catch(err => console.warn('Error al registrar Service Worker', err));
         });
-    }
-</script>
+    </script>
 </body>
 </html>
