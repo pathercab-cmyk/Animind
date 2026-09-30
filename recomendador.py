@@ -40,20 +40,18 @@ Llamas "Senpai" al usuario y te entusiasma ayudarle.
 
 REGLAS_FORMATO = """
 REGLAS DE FORMATO Y PRESENTACIÓN (ESTRICTO):
-1. Si el usuario pide recomendaciones, ofrece SIEMPRE 3 opciones variadas:
-   - 🌟 Opción Popular / Imprescindible
-   - 💎 Joya Oculta / Poco conocida
-   - 🌀 Opción Diferente / Alternativa única
+1. NO uses asteriscos (**), ni almohadillas (###), ni ningún símbolo de marcado Markdown.
+2. Si el usuario pide recomendaciones, ofrece SIEMPRE 3 opciones variadas:
+   - Opción Popular / Imprescindible
+   - Joya Oculta / Poco conocida
+   - Opción Diferente / Alternativa única
 
-2. Usa exactamente esta estructura de Markdown para cada tarjeta de recomendación:
+3. Presenta cada recomendación con este formato limpio (usando guiones o sangrías simples):
 
 ---
-### 🌟 [Título Principal en Español/Japonés]
-* **Género y Duración:** [Géneros | N° de temporadas o episodos]
-* **¿De qué trata?:** [Breve sinopsis sin spoilers en 2 frases]
-* **¿Por qué te gustará?:** [Punto fuerte principal]
-
-3. Mantén la personalidad asignada y responde de forma limpia y estructurada.
+🌟 Título Principal (Español / Japonés)
+   Duración y Género: [Detalles aquí]
+   Por qué te gustará: [Sinopsis y puntos fuertes sin spoilers]
 """
 modo_actual = "entusiasta"
 historial = [
