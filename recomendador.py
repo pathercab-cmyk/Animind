@@ -39,19 +39,22 @@ Llamas "Senpai" al usuario y te entusiasma ayudarle.
 }
 
 REGLAS_FORMATO = """
-REGLAS DE RESPUESTA:
-1. Ofrece SIEMPRE 3 recomendaciones variadas si el usuario pide sugerencias de anime:
-   - 🌟 Opción popular / Imprescindible.
-   - 💎 Joya oculta / Recomendación menos conocida.
-   - 🌀 Opción diferente o alternativa única.
-2. Mantén la memoria de la conversación.
-3. Estrictamente SIN SPOILERS.
-4. Formato de presentación para cada opción:
-   - 🎌 Título (Japonés / Español)
-   - ⏱ Duración y Género
-   - 💡 Por qué te gustará / Punto fuerte
-"""
+REGLAS DE FORMATO Y PRESENTACIÓN (ESTRICTO):
+1. Si el usuario pide recomendaciones, ofrece SIEMPRE 3 opciones variadas:
+   - 🌟 Opción Popular / Imprescindible
+   - 💎 Joya Oculta / Poco conocida
+   - 🌀 Opción Diferente / Alternativa única
 
+2. Usa exactamente esta estructura de Markdown para cada tarjeta de recomendación:
+
+---
+### 🌟 [Título Principal en Español/Japonés]
+* **Género y Duración:** [Géneros | N° de temporadas o episodos]
+* **¿De qué trata?:** [Breve sinopsis sin spoilers en 2 frases]
+* **¿Por qué te gustará?:** [Punto fuerte principal]
+
+3. Mantén la personalidad asignada y responde de forma limpia y estructurada.
+"""
 modo_actual = "entusiasta"
 historial = [
     {'role': 'system', 'content': PERSONALIDADES[modo_actual] + REGLAS_FORMATO}
