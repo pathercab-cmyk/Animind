@@ -41,7 +41,7 @@
         </form>
     </div>
 
-    <script>
+  <script>
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
         const chatBox = document.getElementById('chat-box');
@@ -51,7 +51,7 @@
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Añadir mensaje del usuario al chat
+            // Mensaje del usuario
             const userDiv = document.createElement('div');
             userDiv.className = 'message user';
             userDiv.innerText = message;
@@ -60,10 +60,10 @@
             userInput.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Añadir mensaje provisional de carga
+            // Mensaje del bot (Cargando)
             const botDiv = document.createElement('div');
             botDiv.className = 'message bot';
-            botDiv.innerHTML = '<span class="sender-name">AniMind</span>Pensando... 🌸';
+            botDiv.innerHTML = '<span class="sender-name">AniMind</span><div class="message-content">Pensando... 🌸</div>';
             chatBox.appendChild(botDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -74,9 +74,16 @@
                     body: JSON.stringify({ message: message })
                 });
                 const data = await response.json();
-                botDiv.innerHTML = '<span class="sender-name">AniMind</span>' + data.response;
+                
+                // Limpiar asteriscos y almohadillas por si la IA los genera
+                let textLimpio = data.response
+                    .replace(/[*#]/g, '')
+                    .replace(/\n/g, '<br>');
+
+                const contentDiv = botDiv.querySelector('.message-content');
+                contentDiv.innerHTML = textLimpio;
             } catch (error) {
-                botDiv.innerHTML = '<span class="sender-name">AniMind</span>❌ Error de conexión al servidor.';
+                botDiv.querySelector('.message-content').innerHTML = '❌ Error de conexión al servidor.';
             }
             chatBox.scrollTop = chatBox.scrollHeight;
         });
