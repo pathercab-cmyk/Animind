@@ -36,12 +36,17 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
     client = Groq(api_key=api_key)
 
     try:
-        # Obtenemos los modelos activos directamente desde la API de Groq
-        modelos_api = [m.id for m in client.models.list().data if "llama" in m.id or "mixtral" in m.id]
+        # Obtenemos la lista dinámica de la API
+        todos_los_modelos = [m.id for m in client.models.list().data]
         
-        # Si no filtró ninguno por nombre, tomamos todos los disponibles
+        # Filtramos solo los modelos de texto para chat, excluyendo audio/vision/preview restrictivos
+        modelos_api = [
+            m for m in todos_los_modelos 
+            if not any(excluido in m.lower() for excluido in ["whisper", "guard", "vision", "versatile-preview"])
+        ]
+        
         if not modelos_api:
-            modelos_api = [m.id for m in client.models.list().data]
+            modelos_api = todos_los_modelos
 
     except Exception as e:
         return f"Error al consultar la lista de modelos en la API de Groq: {str(e)}"
@@ -56,7 +61,7 @@ REGLAS DE FORMATO Y PRESENTACIÓN (CUMPLIR ESTRICTAMENTE):
                     {"role": "user", "content": mensaje_usuario}
                 ],
                 temperature=0.7,
-                max_tokens=1024
+                max_tokens=500
             )
             return completion.choices[0].message.content
         except Exception as e:
